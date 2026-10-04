@@ -82,17 +82,9 @@ func (opts *ruriRunOptions) run(args []string, stdout io.Writer) (retErr error) 
 	}
 
 	ruriPath := filepath.Join(binaryDir, "ruri")
-	if !checkIsRuriDownload(ruriPath) {
-		client := &http.Client{}
-		if err := downloadBinary(client,
-			"https://fw0.koolcenter.com/binary/DockRoot/ruri",
-			ruriPath,
-			"ruri"); err != nil {
-			return err
-		}
-		if !checkIsBinaryDownload(ruriPath, "-v", "ruri version") {
-			return fmt.Errorf("failed to download ruri binary")
-		}
+	if _, err := os.Stat(ruriPath); err != nil {
+		return fmt.Errorf("ruri binary not found at %s; "+
+						  "please place the ruri binary next to DockRoot", ruriPath)
 	}
 	confPath := filepath.Join(destAbsDir, "ruri.conf")
 	if _, err := os.Stat(confPath); err != nil {
