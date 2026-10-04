@@ -54,8 +54,15 @@ jobs:
         run: |
           cp "ruri/ruri-${{ matrix.goarch }}" dist/ruri
           chmod +x dist/ruri
-          ./dist/ruri --help | grep -q -- '--fork-as-init'
-          ./dist/ruri -v || true
+          file dist/ruri
+
+          if [ "${{ matrix.goarch }}" = "amd64" ]; then
+            ./dist/ruri --help | grep -q -- '--fork-as-init'
+            ./dist/ruri -v || true
+          else
+            grep -qa -- '--fork-as-init' dist/ruri
+            echo "cross-arch check passed: --fork-as-init present in arm64 binary"
+          fi
 
       - name: Package
         run: |
