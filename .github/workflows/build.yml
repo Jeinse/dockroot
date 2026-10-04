@@ -20,10 +20,8 @@ jobs:
         include:
           - goarch: amd64
             suffix: x86_64
-            ruri_asset: ruri-x86_64.tar
           - goarch: arm64
             suffix: aarch64
-            ruri_asset: ruri-aarch64.tar
 
     steps:
       - name: Checkout
@@ -52,19 +50,9 @@ jobs:
             ./cmd/dockroot
           file dist/DockRoot
 
-      - name: Fetch ruri ${{ env.RURI_VERSION }}
+      - name: Bundle ruri
         run: |
-          curl -fsSL -o /tmp/ruri.tar \
-            "https://github.com/RuriOSS/ruri/releases/download/${{ env.RURI_VERSION }}/${{ matrix.ruri_asset }}"
-          mkdir -p /tmp/ruri-extract
-          tar -xf /tmp/ruri.tar -C /tmp/ruri-extract
-          RURI_BIN=$(find /tmp/ruri-extract -type f -name 'ruri' | head -1)
-          if [ -z "$RURI_BIN" ]; then
-            echo "ERROR: ruri binary not found in extracted archive"
-            find /tmp/ruri-extract -type f | head -20
-            exit 1
-          fi
-          cp "$RURI_BIN" dist/ruri
+          cp "ruri/ruri-${{ matrix.goarch }}" dist/ruri
           chmod +x dist/ruri
           ./dist/ruri --help | grep -q -- '--fork-as-init'
           ./dist/ruri -v || true
