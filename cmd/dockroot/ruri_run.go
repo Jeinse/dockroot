@@ -116,12 +116,12 @@ func (opts *ruriRunOptions) run(args []string, stdout io.Writer) (retErr error) 
 		logFile := filepath.Join(destAbsDir, "ruri.log")
 		if len(argExtras) == 0 {
 			argsToRun = []string{
-				"-b", "-L", logFile, "-c", confPath,
+				"-b", "--fork-as-init", "-L", logFile, "-c", confPath,
 			}
 		} else {
 			argsToRun = make([]string, 0, len(argExtras)+6)
 			argsToRun = append(argsToRun, []string{
-				"-b", "-L", logFile, "-c", confPath,
+				"-b", "--fork-as-init", "-L", logFile, "-c", confPath,
 			}...)
 			argsToRun = append(argsToRun, argExtras...)
 		}
@@ -152,12 +152,14 @@ func (opts *ruriRunOptions) run(args []string, stdout io.Writer) (retErr error) 
 		if len(argExtras) == 0 {
 			argsToRun = []string{
 				filepath.Base(ruriPath),
+				"--fork-as-init",
 				"-c", confPath,
 			}
 		} else {
 			argsToRun = make([]string, 0, len(argExtras)+6)
 			argsToRun = append(argsToRun, []string{
 				filepath.Base(ruriPath),
+				"--fork-as-init",
 				"-c", confPath,
 			}...)
 			argsToRun = append(argsToRun, argExtras...)
@@ -240,17 +242,16 @@ func writeRuri(ruriPath,
 	}
 
 	if len(spec.Process.Args) > 0 {
-		if spec.Process.Args[0] == "/init" {
-			if isHomeassistant(spec) {
-				entry, err := writeHomeassistant(targetBashStr, destAbsDir)
-				if err == nil {
-					ruriInfo.Commands = append(ruriInfo.Commands, entry)
-				}
+		if spec.Process.Args[0] == "/init" && isHomeassistant(spec) {
+			entry, err := writeHomeassistant(targetBashStr, destAbsDir)
+			if err == nil {
+				ruriInfo.Commands = append(ruriInfo.Commands, entry)
 			}
 		} else {
 			ruriInfo.Commands = spec.Process.Args
 		}
 	}
+
 	if len(ruriInfo.Commands) == 0 {
 		ruriInfo.Commands = append(ruriInfo.Commands, targetBashStr)
 	}
