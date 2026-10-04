@@ -28,6 +28,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Set up Go
         uses: actions/setup-go@v5
@@ -42,7 +44,10 @@ jobs:
           CGO_ENABLED: '0'
         run: |
           mkdir -p dist
-          go build -trimpath -ldflags "-s -w" \
+          GV=$(git log --pretty=format:'%H' -n 1)
+          go build \
+            -ldflags "-X main.gitCommit=${GV} -s -w" \
+            -tags "containers_image_openpgp exclude_graphdriver_btrfs" \
             -o dist/DockRoot \
             ./cmd/dockroot
           file dist/DockRoot
@@ -53,7 +58,6 @@ jobs:
             "https://github.com/RuriOSS/ruri/releases/download/${{ env.RURI_VERSION }}/${{ matrix.ruri_asset }}"
           mkdir -p /tmp/ruri-extract
           tar -xf /tmp/ruri.tar -C /tmp/ruri-extract
-          # 找到解压后的 ruri 二进制
           RURI_BIN=$(find /tmp/ruri-extract -type f -name 'ruri' | head -1)
           if [ -z "$RURI_BIN" ]; then
             echo "ERROR: ruri binary not found in extracted archive"
