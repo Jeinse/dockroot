@@ -110,19 +110,8 @@ func (opts *pullOptions) run(args []string, stdout io.Writer) (retErr error) {
 	}
 
 	ruriPath := filepath.Join(binaryDir, "ruri")
-	if !checkIsRuriDownload(ruriPath) {
-		if client == nil {
-			client = &http.Client{}
-		}
-		if err := downloadBinary(client,
-			RuriUrl,
-			ruriPath,
-			"ruri"); err != nil {
-			return err
-		}
-		if !checkIsBinaryDownload(ruriPath, "-v", "ruri version") {
-			return fmt.Errorf("failed to download ruri binary")
-		}
+	if err := ensureRuri(ruriPath); err != nil {
+		return err
 	}
 
 	destDir := filepath.Join(info.DataRoot, CleanString(args[1]))

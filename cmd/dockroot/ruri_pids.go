@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"io"
-	"net/http"
 	"os"
 	"path/filepath"
 	"strings"
@@ -51,17 +50,8 @@ func (opts *ruriPidsOptions) run(args []string, stdout io.Writer) (retErr error)
 	}
 
 	ruriPath := filepath.Join(binaryDir, "ruri")
-	if !checkIsRuriDownload(ruriPath) {
-		client := &http.Client{}
-		if err := downloadBinary(client,
-			"https://fw0.koolcenter.com/binary/DockRoot/ruri",
-			ruriPath,
-			"ruri"); err != nil {
-			return err
-		}
-		if !checkIsBinaryDownload(ruriPath, "-v", "ruri version") {
-			return fmt.Errorf("failed to download ruri binary")
-		}
+	if err := ensureRuri(ruriPath); err != nil {
+		return err
 	}
 	confPath := filepath.Join(destAbsDir, "ruri.conf")
 	if _, err := os.Stat(confPath); err != nil {

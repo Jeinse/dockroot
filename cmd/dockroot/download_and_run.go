@@ -143,6 +143,14 @@ func checkIsRuriDownload(binaryPath string) bool {
 	return checkIsBinaryDownload(binaryPath, "-v", "ruri version")
 }
 
+func ensureRuri(ruriPath string) error {
+	if _, err := os.Stat(ruriPath); err != nil {
+		return fmt.Errorf("ruri binary not found at %s; "+
+			"please place the ruri binary next to DockRoot", ruriPath)
+	}
+	return nil
+}
+
 func checkAndDownloadRuri(binaryPath string, client *http.Client) error {
 	if !checkIsBinaryDownload(binaryPath, "-v", "ruri version") {
 		if err := downloadBinary(client,

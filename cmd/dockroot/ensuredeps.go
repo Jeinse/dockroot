@@ -108,16 +108,8 @@ func (opts *ensureDepsOptions) run(args []string, stdout io.Writer) (retErr erro
 	}
 
 	ruriPath := filepath.Join(binaryDir, "ruri")
-	if !checkIsRuriDownload(ruriPath) {
-		if err := downloadBinary(client,
-			RuriUrl,
-			ruriPath,
-			"ruri"); err != nil {
-			return err
-		}
-		if !checkIsBinaryDownload(ruriPath, "-v", "ruri version") {
-			return fmt.Errorf("failed to download ruri binary")
-		}
+	if err := ensureRuri(ruriPath); err != nil {
+		return err
 	}
 	return nil
 }

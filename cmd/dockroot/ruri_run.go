@@ -81,9 +81,8 @@ func (opts *ruriRunOptions) run(args []string, stdout io.Writer) (retErr error) 
 	}
 
 	ruriPath := filepath.Join(binaryDir, "ruri")
-	if _, err := os.Stat(ruriPath); err != nil {
-		return fmt.Errorf("ruri binary not found at %s; "+
-						  "please place the ruri binary next to DockRoot", ruriPath)
+	if err := ensureRuri(ruriPath); err != nil {
+		return err
 	}
 	confPath := filepath.Join(destAbsDir, "ruri.conf")
 	if _, err := os.Stat(confPath); err != nil {
